@@ -6,18 +6,22 @@
   <title>Field Target Pro</title>
   <meta name="theme-color" content="#071021">
   <meta name="robots" content="noindex, nofollow">
+
+  <!-- Favicon and PWA icons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+
   <style>
-    #startup {
-      width: 100vw;
-      height: 100vh;
-      background: #071021;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-size: 2rem;
+    /* Minimal CSS for startup screen */
+    body { margin: 0; font-family: sans-serif; background: #071021; color: white; }
+    #startup { 
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      width: 100vw; height: 100vh; text-align: center;
     }
+    .title { font-size: 2.5rem; margin-bottom: 1rem; }
+    /* Add your app CSS below */
   </style>
 </head>
 <body>
@@ -28,10 +32,25 @@
     </audio>
   </div>
 
+  <div id="app">
+    <!-- Your main app content goes here -->
+    <p style="text-align:center;">App will load here after startup screen.</p>
+  </div>
+
   <script>
+    // Play clang sound after 1s (catch autoplay errors)
     const clang = document.getElementById('clangSound');
     setTimeout(() => clang.play().catch(e => console.log(e)), 1000);
-    setTimeout(() => document.getElementById('startup').style.display = 'none', 5000);
+
+    // Hide startup screen after 5.5s
+    setTimeout(() => document.getElementById('startup').style.display = 'none', 5500);
+
+    // Service Worker registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker Registered'))
+        .catch(err => console.error('Service Worker failed:', err));
+    }
   </script>
 </body>
 </html>
