@@ -3,8 +3,8 @@
   "short_name": "FT Pro",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#071021",
+  "theme_color": "#071021",
   "icons": [
     {
       "src": "icons/web-app-manifest-192x192.png",
