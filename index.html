@@ -1,17 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- PWA Title -->
   <title>Field Target Pro</title>
-
-  <!-- Theme color for mobile browsers -->
-  <meta name="theme-color" content="#000000">
-
-  <!-- Prevent search engines from indexing -->
+  <meta name="theme-color" content="#071021">
   <meta name="robots" content="noindex, nofollow">
 
   <!-- Favicon and App Icons -->
@@ -19,29 +13,14 @@
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 
-  <!-- PWA Manifest -->
+  <!-- Manifest -->
   <link rel="manifest" href="manifest.json">
-
-  <!-- Optional: Safari pinned tab icon -->
-  <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#000000">
-</head>
-
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-  <title>Field Target Pro</title>
-
-  <!-- PWA Requirements -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#071021">
-  <link rel="icon" href="icon-512.png" type="image/png">
 
   <style>
-    /* === (Your existing CSS code from before) === */
-    /* Keep all your CSS from the last version you liked */
+    /* === Your CSS code here === */
   </style>
 </head>
 <body>
-  <!-- === Your existing HTML content === -->
   <div id="startup">
     <div class="target-container">
       <div class="field-target">
@@ -63,9 +42,8 @@
   </div>
 
   <script>
-    // === Your existing JS logic ===
     const clang = document.getElementById('clangSound');
-    setTimeout(() => clang.play(), 1800);
+    setTimeout(() => clang.play().catch(e => console.log(e)), 1800); // avoid autoplay error
     setTimeout(() => document.getElementById('startup').style.display = 'none', 5500);
 
     function calculate() {
@@ -79,7 +57,7 @@
       const drop = 0.5 * g * Math.pow((range / (v * 0.3048)), 2);
       document.getElementById('output').innerHTML = `
         <strong>Results:</strong><br>
-        Muzzle Energy: ${(energy).toFixed(2)} J<br>
+        Muzzle Energy: ${energy.toFixed(2)} J<br>
         Pellet Drop: ${(drop * 100).toFixed(1)} cm<br>
         Scope Offset: ~${scope} mm
       `;
@@ -97,11 +75,11 @@
       }
     }
 
-    // === PWA Registration ===
+    // Service Worker registration
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('Service Worker Registered'))
-      .catch(err => console.error('Service Worker failed:', err));
+        .then(() => console.log('Service Worker Registered'))
+        .catch(err => console.error('Service Worker failed:', err));
     }
   </script>
 </body>
