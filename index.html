@@ -3,84 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Field Target Pro</title>
   <meta name="theme-color" content="#071021">
   <meta name="robots" content="noindex, nofollow">
-
-  <!-- Favicon and App Icons -->
-  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-
-  <!-- Manifest -->
-  <link rel="manifest" href="manifest.json">
-
   <style>
-    /* === Your CSS code here === */
+    #startup {
+      width: 100vw;
+      height: 100vh;
+      background: #071021;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 2rem;
+    }
   </style>
 </head>
 <body>
   <div id="startup">
-    <div class="target-container">
-      <div class="field-target">
-        <div class="ft-text">FT</div>
-        <div class="kill-zone">
-          <div class="splatter"></div>
-        </div>
-      </div>
-      <div class="base-plate"></div>
-    </div>
     <div class="title">Field Target Pro</div>
     <audio id="clangSound" preload="auto">
       <source src="https://actions.google.com/sounds/v1/metal/metal_hit_bell.ogg" type="audio/ogg">
     </audio>
   </div>
 
-  <div class="app" id="app">
-    <!-- App content remains identical -->
-  </div>
-
   <script>
     const clang = document.getElementById('clangSound');
-    setTimeout(() => clang.play().catch(e => console.log(e)), 1800); // avoid autoplay error
-    setTimeout(() => document.getElementById('startup').style.display = 'none', 5500);
-
-    function calculate() {
-      const w = parseFloat(document.getElementById('pelletWeight').value);
-      const v = parseFloat(document.getElementById('velocity').value);
-      const range = parseFloat(document.getElementById('range').value);
-      const scope = parseFloat(document.getElementById('scopeHeight').value);
-      const g = 9.81;
-      const m = w * 0.0000648;
-      const energy = 0.5 * m * Math.pow(v * 0.3048, 2);
-      const drop = 0.5 * g * Math.pow((range / (v * 0.3048)), 2);
-      document.getElementById('output').innerHTML = `
-        <strong>Results:</strong><br>
-        Muzzle Energy: ${energy.toFixed(2)} J<br>
-        Pellet Drop: ${(drop * 100).toFixed(1)} cm<br>
-        Scope Offset: ~${scope} mm
-      `;
-    }
-
-    function loadVideos(event) {
-      const gallery = document.getElementById('videoGallery');
-      gallery.innerHTML = "";
-      for (let file of event.target.files) {
-        const url = URL.createObjectURL(file);
-        const vid = document.createElement('video');
-        vid.src = url;
-        vid.controls = true;
-        gallery.appendChild(vid);
-      }
-    }
-
-    // Service Worker registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker Registered'))
-        .catch(err => console.error('Service Worker failed:', err));
-    }
+    setTimeout(() => clang.play().catch(e => console.log(e)), 1000);
+    setTimeout(() => document.getElementById('startup').style.display = 'none', 5000);
   </script>
 </body>
 </html>
