@@ -14,33 +14,30 @@
   <link rel="manifest" href="manifest.json">
 
   <style>
-    /* Global styles */
-    body { margin:0; font-family: sans-serif; background: #071021; color: white; }
+    body { margin:0; font-family:sans-serif; background:#071021; color:white; }
+    nav { display:flex; justify-content: space-around; background:#0b1a2a; padding:0.5rem; }
+    nav ul { list-style:none; display:flex; margin:0; padding:0; }
+    nav li { margin:0 1rem; cursor:pointer; padding:0.25rem 0.5rem; border-radius:4px; }
+    nav li.active, nav li:hover { background:#1b2a3f; }
+
+    #content { padding:1rem; max-width:800px; margin:auto; }
+    button { cursor:pointer; padding:0.25rem 0.5rem; margin:0.1rem; }
+
+    /* Score Sheet Table */
+    table { width:100%; border-collapse: collapse; margin-top:1rem; }
+    th, td { border:1px solid #555; padding:0.5rem; text-align:center; }
+    th { background:#0b1a2a; }
+
+    /* Calculator inputs */
+    .calculator input { width:80px; margin-right:10px; }
 
     /* Startup screen */
-    #startup { 
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      width: 100vw; height: 100vh; text-align: center;
-    }
-    #startup .title { font-size: 3rem; margin-bottom: 1rem; }
+    #startup { display:flex; flex-direction:column; justify-content:center; align-items:center;
+               width:100vw; height:100vh; text-align:center; }
+    #startup .title { font-size:3rem; margin-bottom:1rem; }
 
-    /* App container */
-    #app { display: none; padding: 1rem; max-width: 600px; margin: auto; }
-
-    /* Calculator */
-    .calculator input { width: 80px; margin-right: 10px; }
-    #output { margin-top: 1rem; font-weight: bold; }
-
-    /* Target animation */
-    .target-container { position: relative; width: 150px; height: 150px; margin: 2rem auto; }
-    .field-target { width: 100%; height: 100%; background: radial-gradient(circle, #222 50%, #444 100%); border-radius: 50%; position: relative; }
-    .ft-text { position: absolute; top:50%; left:50%; transform: translate(-50%,-50%); font-size:2rem; }
-    .kill-zone { position: absolute; width: 50px; height: 50px; top:50%; left:50%; transform: translate(-50%,-50%); border-radius:50%; background: rgba(255,0,0,0.2); }
-    .splatter { position: absolute; width: 0; height: 0; border-radius:50%; background: rgba(255,0,0,0.8); transition: all 0.3s ease; }
-    .base-plate { width: 100%; height: 10px; background: #333; margin-top: 5px; border-radius:5px; }
-
-    /* Simple fade-in animation for app */
-    #app.fade-in { animation: fadeIn 1s forwards; }
+    /* Fade in effect */
+    .fade-in { animation: fadeIn 1s forwards; }
     @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
   </style>
 </head>
@@ -54,74 +51,164 @@
     </audio>
   </div>
 
-  <!-- Main app -->
-  <div id="app">
-    <div class="target-container">
-      <div class="field-target">
-        <div class="ft-text">FT</div>
-        <div class="kill-zone">
-          <div class="splatter" id="splatter"></div>
-        </div>
-      </div>
-      <div class="base-plate"></div>
-    </div>
+  <!-- Navigation Menu -->
+  <nav>
+    <ul>
+      <li id="menu-score" class="active">Score Sheet</li>
+      <li id="menu-preferences">Preferences</li>
+      <li id="menu-calculator">Calculator</li>
+      <li id="menu-tracker">Score Tracker</li>
+      <li id="menu-events">Competitions / Events</li>
+    </ul>
+  </nav>
 
-    <div class="calculator">
-      <label>Pallet Weight (grains): <input type="number" id="pelletWeight" value="14"></label>
-      <label>Velocity (fps): <input type="number" id="velocity" value="900"></label>
-      <label>Range (m): <input type="number" id="range" value="20"></label>
-      <label>Scope Height (mm): <input type="number" id="scopeHeight" value="25"></label>
-      <button onclick="calculate()">Calculate</button>
-    </div>
-
-    <div id="output"></div>
+  <!-- Dynamic Content -->
+  <div id="content">
+    <!-- Score Sheet will load here by default -->
   </div>
 
   <script>
     const clang = document.getElementById('clangSound');
     const startup = document.getElementById('startup');
-    const app = document.getElementById('app');
-    const splatter = document.getElementById('splatter');
+    const appContent = document.getElementById('content');
+    const menuItems = document.querySelectorAll('nav li');
 
-    // Play clang sound after 1s (catch autoplay errors)
-    setTimeout(() => clang.play().catch(e => console.log(e)), 1000);
-
-    // Hide startup screen & show app after 5.5s
+    // Startup screen
     setTimeout(() => {
       startup.style.display = 'none';
-      app.style.display = 'block';
-      app.classList.add('fade-in');
-    }, 5500);
+      appContent.classList.add('fade-in');
+    }, 1800);
+    setTimeout(() => clang.play().catch(e => console.log(e)), 1000);
 
-    // Calculator logic
-    function calculate() {
+    // Navigation
+    menuItems.forEach(item => {
+      item.addEventListener('click', () => {
+        menuItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        loadContent(item.id);
+      });
+    });
+
+    // Load content based on menu selection
+    function loadContent(id) {
+      if(id==='menu-score') loadScoreSheet();
+      else if(id==='menu-preferences') appContent.innerHTML = `<h2>Preferences</h2><p>Rule Book and units selection here.</p>`;
+      else if(id==='menu-calculator') loadCalculator();
+      else if(id==='menu-tracker') appContent.innerHTML = `<h2>Score Tracker</h2><p>Previous competition results displayed here.</p>`;
+      else if(id==='menu-events') appContent.innerHTML = `<h2>Competitions / Events</h2><p>Join or host competitions here.</p>`;
+    }
+
+    // ===== Score Sheet =====
+    function loadScoreSheet() {
+      appContent.innerHTML = `
+        <h2>Start New Competition</h2>
+        <form id="newCompForm">
+          <label>Competition Name: <input type="text" id="compName" required></label><br>
+          <label>Date: <input type="date" id="compDate" value="${new Date().toISOString().slice(0,10)}"></label><br>
+          <label>Number of Targets: <input type="number" id="numTargets" min="1" value="10" required></label><br>
+          <label>Rule Book:
+            <select id="ruleBook">
+              <option value="SSAA">SSAA</option>
+              <option value="WFTF">WFTF</option>
+            </select>
+          </label><br>
+          <button type="submit">Start Competition</button>
+        </form>
+        <div id="scoreTableContainer"></div>
+      `;
+
+      const form = document.getElementById('newCompForm');
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const name = document.getElementById('compName').value;
+        const date = document.getElementById('compDate').value;
+        const numTargets = parseInt(document.getElementById('numTargets').value);
+        const ruleBook = document.getElementById('ruleBook').value;
+        createScoreTable(numTargets, name, date, ruleBook);
+      });
+    }
+
+    function createScoreTable(numTargets, name, date, ruleBook) {
+      let html = `<h3>${name} (${date}) - Rule Book: ${ruleBook}</h3>`;
+      html += `<table><tr><th>Target #</th><th>Hit</th><th>Miss</th></tr>`;
+      for(let i=1;i<=numTargets;i++){
+        html += `<tr>
+                  <td>${i}</td>
+                  <td><button onclick="markHit(this)">Hit</button></td>
+                  <td><button onclick="markMiss(this)">Miss</button></td>
+                 </tr>`;
+      }
+      html += `</table><p>Total Score: <span id="totalScore">0</span></p>`;
+      appContent.querySelector('#scoreTableContainer').innerHTML = html;
+    }
+
+    function markHit(button) {
+      const row = button.parentElement.parentElement;
+      row.querySelectorAll('button').forEach(b=>b.disabled=true);
+      row.querySelector('td:nth-child(2)').style.background='green';
+      updateTotal();
+    }
+
+    function markMiss(button) {
+      const row = button.parentElement.parentElement;
+      row.querySelectorAll('button').forEach(b=>b.disabled=true);
+      row.querySelector('td:nth-child(3)').style.background='red';
+      updateTotal();
+    }
+
+    function updateTotal() {
+      const rows = appContent.querySelectorAll('table tr');
+      let total=0;
+      rows.forEach((row,i)=>{
+        if(i===0) return; // skip header
+        const hitCell = row.querySelector('td:nth-child(2)');
+        if(hitCell.style.background==='green') total++;
+      });
+      appContent.querySelector('#totalScore').textContent = total;
+    }
+
+    // ===== Ballistic Calculator =====
+    function loadCalculator() {
+      appContent.innerHTML = `
+        <h2>Ballistic Calculator</h2>
+        <div class="calculator">
+          <label>Pallet Weight (grains): <input type="number" id="pelletWeight" value="14"></label>
+          <label>Velocity (fps): <input type="number" id="velocity" value="900"></label>
+          <label>Range (m): <input type="number" id="range" value="20"></label>
+          <label>Scope Height (mm): <input type="number" id="scopeHeight" value="25"></label>
+          <button onclick="calculateBallistic()">Calculate</button>
+        </div>
+        <div id="output"></div>
+      `;
+    }
+
+    function calculateBallistic() {
       const w = parseFloat(document.getElementById('pelletWeight').value);
       const v = parseFloat(document.getElementById('velocity').value);
       const range = parseFloat(document.getElementById('range').value);
       const scope = parseFloat(document.getElementById('scopeHeight').value);
       const g = 9.81;
-      const m = w * 0.0000648; // kg
-      const energy = 0.5 * m * Math.pow(v * 0.3048, 2); // J
-      const drop = 0.5 * g * Math.pow(range / (v * 0.3048), 2); // m
+      const m = w*0.0000648;
+      const energy = 0.5*m*Math.pow(v*0.3048,2);
+      const drop = 0.5*g*Math.pow(range/(v*0.3048),2);
       document.getElementById('output').innerHTML = `
         <strong>Results:</strong><br>
         Muzzle Energy: ${energy.toFixed(2)} J<br>
         Pellet Drop: ${(drop*100).toFixed(1)} cm<br>
         Scope Offset: ~${scope} mm
       `;
-
-      // Simple splatter animation on calculation
-      splatter.style.width = '50px';
-      splatter.style.height = '50px';
-      setTimeout(() => { splatter.style.width = '0'; splatter.style.height = '0'; }, 500);
     }
 
-    // Service Worker registration
-    if ('serviceWorker' in navigator) {
+    // Load default tab
+    loadScoreSheet();
+
+    // ===== PWA Service Worker =====
+    if('serviceWorker' in navigator){
       navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker Registered'))
-        .catch(err => console.error('Service Worker failed:', err));
+      .then(()=>console.log('Service Worker Registered'))
+      .catch(err=>console.error('Service Worker failed:',err));
     }
   </script>
+
 </body>
 </html>
